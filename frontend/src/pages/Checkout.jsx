@@ -74,13 +74,16 @@ const Checkout = () => {
         description: 'Order Payment',
         order_id: razorpayOrder.id,
         handler: async function (response) {
+          console.log('Razorpay payment response:', response)
           try {
             // Verify payment
+            console.log('Verifying payment...')
             const { data: verifyData } = await axios.post('/api/payment/verify', {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
             })
+            console.log('Payment verification response:', verifyData)
 
             if (verifyData.success) {
               // Create order in database
@@ -98,16 +101,21 @@ const Checkout = () => {
               console.log('Creating order with data:', orderData)
               const result = await dispatch(createOrder(orderData)).unwrap()
               console.log('Order created successfully:', result)
+              
+              // Small delay to ensure order is saved
+              await new Promise(resolve => setTimeout(resolve, 500))
+              
               dispatch(clearCart())
               navigate('/ordersuccess')
             } else {
               setError('Payment verification failed. Please contact support.')
               console.error('Payment verification failed:', verifyData)
+              setLoading(false)
             }
           } catch (err) {
             console.error('Order creation error:', err)
+            console.error('Error details:', err.response?.data)
             setError(err.message || 'Failed to create order. Please contact support.')
-          } finally {
             setLoading(false)
           }
         },
