@@ -1,11 +1,30 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-const cartItemsFromStorage = localStorage.getItem('cartItems')
-  ? JSON.parse(localStorage.getItem('cartItems'))
+// Helper function to get user-specific cart key
+const getCartKey = () => {
+  const userInfo = localStorage.getItem('userInfo')
+  if (userInfo) {
+    const user = JSON.parse(userInfo)
+    return `cartItems_${user._id || user.id}`
+  }
+  return 'cartItems_guest'
+}
+
+const getShippingKey = () => {
+  const userInfo = localStorage.getItem('userInfo')
+  if (userInfo) {
+    const user = JSON.parse(userInfo)
+    return `shippingAddress_${user._id || user.id}`
+  }
+  return 'shippingAddress_guest'
+}
+
+const cartItemsFromStorage = localStorage.getItem(getCartKey())
+  ? JSON.parse(localStorage.getItem(getCartKey()))
   : []
 
-const shippingAddressFromStorage = localStorage.getItem('shippingAddress')
-  ? JSON.parse(localStorage.getItem('shippingAddress'))
+const shippingAddressFromStorage = localStorage.getItem(getShippingKey())
+  ? JSON.parse(localStorage.getItem(getShippingKey()))
   : {}
 
 const initialState = {
@@ -28,11 +47,11 @@ const cartSlice = createSlice({
       } else {
         state.cartItems.push(item)
       }
-      localStorage.setItem('cartItems', JSON.stringify(state.cartItems))
+      localStorage.setItem(getCartKey(), JSON.stringify(state.cartItems))
     },
     removeFromCart: (state, action) => {
       state.cartItems = state.cartItems.filter((x) => x._id !== action.payload)
-      localStorage.setItem('cartItems', JSON.stringify(state.cartItems))
+      localStorage.setItem(getCartKey(), JSON.stringify(state.cartItems))
     },
     updateCartItemQty: (state, action) => {
       const { id, qty } = action.payload
@@ -40,15 +59,23 @@ const cartSlice = createSlice({
       if (item) {
         item.qty = qty
       }
-      localStorage.setItem('cartItems', JSON.stringify(state.cartItems))
+      localStorage.setItem(getCartKey(), JSON.stringify(state.cartItems))
     },
     saveShippingAddress: (state, action) => {
       state.shippingAddress = action.payload
-      localStorage.setItem('shippingAddress', JSON.stringify(action.payload))
+      localStorage.setItem(getShippingKey(), JSON.stringify(action.payload))
     },
     clearCart: (state) => {
       state.cartItems = []
-      localStorage.removeItem('cartItems')
+      state.shippingAddress = {}
+      localStorage.removeItem(getCartKey())
+      localStorage.removeItem(getShippingKey())
+    },
+    loadUserCart: (state) => {
+      const cartItems = localStorage.getItem(getCartKey())
+      const shippingAddress = localStorage.getItem(getShippingKey())
+      state.cartItems = cartItems ? JSON.parse(cartItems) : []
+      state.shippingAddress = shippingAddress ? JSON.parse(shippingAddress) : {}
     },
   },
 })
@@ -59,6 +86,7 @@ export const {
   updateCartItemQty,
   saveShippingAddress,
   clearCart,
+  loadUserCart,
 } = cartSlice.actions
 
 export default cartSlice.reducer

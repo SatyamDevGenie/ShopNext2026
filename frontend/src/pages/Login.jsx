@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { login, clearError } from '../redux/slices/authSlice'
+import { loadUserCart } from '../redux/slices/cartSlice'
 
 const Login = () => {
   const [email, setEmail] = useState('')
@@ -17,9 +18,10 @@ const Login = () => {
 
   useEffect(() => {
     if (userInfo) {
+      dispatch(loadUserCart())
       navigate(redirect)
     }
-  }, [userInfo, navigate, redirect])
+  }, [userInfo, navigate, redirect, dispatch])
 
   useEffect(() => {
     return () => {

@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { logout } from '../redux/slices/authSlice'
+import { clearCart, loadUserCart } from '../redux/slices/cartSlice'
 import { FaShoppingCart, FaUser, FaBars, FaTimes } from 'react-icons/fa'
 
 const Navbar = () => {
@@ -14,7 +15,13 @@ const Navbar = () => {
   const { userInfo } = useSelector((state) => state.auth)
   const { cartItems } = useSelector((state) => state.cart)
 
+  // Load user-specific cart when user changes
+  useEffect(() => {
+    dispatch(loadUserCart())
+  }, [userInfo, dispatch])
+
   const handleLogout = () => {
+    dispatch(clearCart())
     dispatch(logout())
     navigate('/login')
   }
@@ -25,8 +32,10 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/ShopNestLogo.png" alt="ShopNest" className="h-10 w-10" />
-            <span className="text-2xl font-bold text-primary">ShopNext</span>
+            <div className="h-10 w-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl">
+              SN
+            </div>
+            <span className="text-2xl font-bold text-primary">ShopNest</span>
           </Link>
 
           {/* Desktop Menu */}

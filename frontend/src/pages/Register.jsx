@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { register, clearError } from '../redux/slices/authSlice'
+import { loadUserCart } from '../redux/slices/cartSlice'
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -19,9 +20,10 @@ const Register = () => {
 
   useEffect(() => {
     if (userInfo) {
+      dispatch(loadUserCart())
       navigate('/')
     }
-  }, [userInfo, navigate])
+  }, [userInfo, navigate, dispatch])
 
   useEffect(() => {
     return () => {
