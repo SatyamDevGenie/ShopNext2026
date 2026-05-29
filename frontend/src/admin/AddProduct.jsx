@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { createProduct } from '../redux/slices/productSlice'
+import { toast } from 'react-toastify'
 
 const AddProduct = () => {
   const navigate = useNavigate()
@@ -47,9 +48,11 @@ const AddProduct = () => {
 
     try {
       await dispatch(createProduct(productData)).unwrap()
+      toast.success('Product created successfully!')
       navigate('/admin/products')
     } catch (err) {
       console.error('Failed to create product:', err)
+      toast.error(err || 'Failed to create product')
     }
   }
 

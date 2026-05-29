@@ -5,6 +5,7 @@ import { fetchProductById } from '../redux/slices/productSlice'
 import { addToCart } from '../redux/slices/cartSlice'
 import Loader from '../components/Loader'
 import { FaStar, FaMinus, FaPlus } from 'react-icons/fa'
+import { toast } from 'react-toastify'
 
 const ProductDetail = () => {
   const { id } = useParams()
@@ -21,6 +22,7 @@ const ProductDetail = () => {
   const handleAddToCart = () => {
     if (product) {
       dispatch(addToCart({ ...product, qty }))
+      toast.success(`${product.name} added to cart!`)
       navigate('/cart')
     }
   }
@@ -41,79 +43,79 @@ const ProductDetail = () => {
   if (!product) return <div className="text-center py-12">Product not found</div>
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
         {/* Product Image */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           <img
             src={product.imageUrl}
             alt={product.name}
-            className="w-full h-96 object-cover"
+            className="w-full h-64 sm:h-96 object-cover"
           />
         </div>
 
         {/* Product Info */}
-        <div>
-          <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
+        <div className="space-y-4 sm:space-y-6">
+          <h1 className="text-2xl sm:text-3xl font-bold">{product.name}</h1>
           
           {/* Rating */}
-          <div className="flex items-center mb-4">
+          <div className="flex items-center">
             <div className="flex items-center text-yellow-400">
               <FaStar />
-              <span className="ml-2 text-gray-600">
+              <span className="ml-2 text-gray-600 text-sm sm:text-base">
                 {product.ratings.toFixed(1)} ({product.numReviews} reviews)
               </span>
             </div>
           </div>
 
           {/* Price */}
-          <div className="mb-6">
-            <span className="text-4xl font-bold text-primary">
+          <div>
+            <span className="text-3xl sm:text-4xl font-bold text-primary">
               ₹{product.price.toFixed(2)}
             </span>
           </div>
 
           {/* Description */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-2">Description</h3>
-            <p className="text-gray-600">{product.description}</p>
+          <div>
+            <h3 className="text-base sm:text-lg font-semibold mb-2">Description</h3>
+            <p className="text-gray-600 text-sm sm:text-base">{product.description}</p>
           </div>
 
           {/* Category */}
-          <div className="mb-6">
-            <span className="inline-block bg-gray-200 rounded-full px-4 py-2 text-sm font-semibold text-gray-700">
+          <div>
+            <span className="inline-block bg-gray-200 rounded-full px-3 sm:px-4 py-1 sm:py-2 text-xs sm:text-sm font-semibold text-gray-700">
               {product.category}
             </span>
           </div>
 
           {/* Stock Status */}
-          <div className="mb-6">
-            <p className={`text-lg font-semibold ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <div>
+            <p className={`text-base sm:text-lg font-semibold ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
               {product.stock > 0 ? `In Stock (${product.stock} available)` : 'Out of Stock'}
             </p>
           </div>
 
           {/* Quantity Selector */}
           {product.stock > 0 && (
-            <div className="mb-6">
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Quantity
               </label>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3 sm:space-x-4">
                 <button
                   onClick={decrementQty}
-                  className="bg-gray-200 hover:bg-gray-300 p-2 rounded-lg"
+                  className="bg-gray-200 hover:bg-gray-300 p-2 sm:p-3 rounded-lg transition"
                   disabled={qty === 1}
                 >
-                  <FaMinus />
+                  <FaMinus className="text-sm sm:text-base" />
                 </button>
-                <span className="text-xl font-semibold w-12 text-center">{qty}</span>
+                <span className="text-lg sm:text-xl font-semibold w-10 sm:w-12 text-center">{qty}</span>
                 <button
                   onClick={incrementQty}
-                  className="bg-gray-200 hover:bg-gray-300 p-2 rounded-lg"
+                  className="bg-gray-200 hover:bg-gray-300 p-2 sm:p-3 rounded-lg transition"
                   disabled={qty === product.stock}
                 >
-                  <FaPlus />
+                  <FaPlus className="text-sm sm:text-base" />
                 </button>
               </div>
             </div>
@@ -123,7 +125,7 @@ const ProductDetail = () => {
           <button
             onClick={handleAddToCart}
             disabled={product.stock === 0}
-            className={`w-full py-3 rounded-lg font-semibold text-white transition ${
+            className={`w-full py-3 sm:py-4 rounded-lg font-semibold text-white transition text-sm sm:text-base ${
               product.stock > 0
                 ? 'bg-primary hover:bg-secondary'
                 : 'bg-gray-400 cursor-not-allowed'

@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { login, clearError } from '../redux/slices/authSlice'
 import { loadUserCart } from '../redux/slices/cartSlice'
+import { toast } from 'react-toastify'
 
 const Login = () => {
   const [email, setEmail] = useState('')
@@ -19,9 +20,16 @@ const Login = () => {
   useEffect(() => {
     if (userInfo) {
       dispatch(loadUserCart())
+      toast.success(`Welcome back, ${userInfo.name}!`)
       navigate(redirect)
     }
   }, [userInfo, navigate, redirect, dispatch])
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error)
+    }
+  }, [error])
 
   useEffect(() => {
     return () => {

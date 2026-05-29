@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { saveShippingAddress, clearCart } from '../redux/slices/cartSlice'
 import { createOrder } from '../redux/slices/orderSlice'
 import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const Checkout = () => {
   const navigate = useNavigate()
@@ -56,7 +57,9 @@ const Checkout = () => {
       // Load Razorpay script
       const scriptLoaded = await loadRazorpayScript()
       if (!scriptLoaded) {
-        setError('Failed to load Razorpay SDK. Please check your internet connection.')
+        const errorMsg = 'Failed to load Razorpay SDK. Please check your internet connection.'
+        setError(errorMsg)
+        toast.error(errorMsg)
         setLoading(false)
         return
       }
@@ -102,20 +105,26 @@ const Checkout = () => {
               const result = await dispatch(createOrder(orderData)).unwrap()
               console.log('Order created successfully:', result)
               
+              toast.success('Payment successful! Order placed.')
+              
               // Small delay to ensure order is saved
               await new Promise(resolve => setTimeout(resolve, 500))
               
               dispatch(clearCart())
               navigate('/ordersuccess')
             } else {
-              setError('Payment verification failed. Please contact support.')
+              const errorMsg = 'Payment verification failed. Please contact support.'
+              setError(errorMsg)
+              toast.error(errorMsg)
               console.error('Payment verification failed:', verifyData)
               setLoading(false)
             }
           } catch (err) {
             console.error('Order creation error:', err)
             console.error('Error details:', err.response?.data)
-            setError(err.message || 'Failed to create order. Please contact support.')
+            const errorMsg = err.message || 'Failed to create order. Please contact support.'
+            setError(errorMsg)
+            toast.error(errorMsg)
             setLoading(false)
           }
         },
@@ -130,6 +139,7 @@ const Checkout = () => {
           ondismiss: function () {
             setLoading(false)
             setError('Payment cancelled')
+            toast.warning('Payment cancelled')
           },
         },
       }
@@ -137,7 +147,9 @@ const Checkout = () => {
       const razorpay = new window.Razorpay(options)
       razorpay.open()
     } catch (err) {
-      setError(err.response?.data?.message || 'Payment failed. Please try again.')
+      const errorMsg = err.response?.data?.message || 'Payment failed. Please try again.'
+      setError(errorMsg)
+      toast.error(errorMsg)
       setLoading(false)
     }
   }
@@ -148,23 +160,23 @@ const Checkout = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-4xl font-bold mb-8">Checkout</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8">Checkout</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         {/* Shipping Form */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-bold mb-6">Shipping Address</h2>
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Shipping Address</h2>
             
             {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              <div className="bg-red-100 border border-red-400 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded mb-4 text-sm sm:text-base">
                 {error}
               </div>
             )}
 
             <form onSubmit={handlePayment}>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Full Name *
@@ -193,7 +205,7 @@ const Checkout = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       City *
@@ -240,7 +252,7 @@ const Checkout = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full btn-primary ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`w-full btn-primary text-sm sm:text-base ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {loading ? 'Processing...' : 'Proceed to Payment'}
                 </button>
@@ -251,12 +263,12 @@ const Checkout = () => {
 
         {/* Order Summary */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-md p-6 sticky top-20">
-            <h2 className="text-2xl font-bold mb-4">Order Summary</h2>
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 sticky top-20">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4">Order Summary</h2>
             
             <div className="space-y-2 mb-4">
               {cartItems.map((item) => (
-                <div key={item._id} className="flex justify-between text-sm">
+                <div key={item._id} className="flex justify-between text-xs sm:text-sm">
                   <span className="text-gray-600">
                     {item.name} x {item.qty}
                   </span>
@@ -268,22 +280,22 @@ const Checkout = () => {
             </div>
 
             <div className="border-t pt-4 space-y-2">
-              <div className="flex justify-between">
+              <div className="flex justify-between text-sm sm:text-base">
                 <span className="text-gray-600">Subtotal</span>
                 <span className="font-semibold">₹{subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between text-sm sm:text-base">
                 <span className="text-gray-600">Tax (18% GST)</span>
                 <span className="font-semibold">₹{tax.toFixed(2)}</span>
               </div>
-              <div className="border-t pt-2 flex justify-between text-lg font-bold">
+              <div className="border-t pt-2 flex justify-between text-base sm:text-lg font-bold">
                 <span>Total</span>
                 <span className="text-primary">₹{total.toFixed(2)}</span>
               </div>
             </div>
 
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-gray-600">
+            <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-blue-50 rounded-lg">
+              <p className="text-xs sm:text-sm text-gray-600">
                 <strong>Test Mode:</strong> Use Razorpay test cards for payment
               </p>
             </div>

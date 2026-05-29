@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { register, clearError } from '../redux/slices/authSlice'
 import { loadUserCart } from '../redux/slices/cartSlice'
+import { toast } from 'react-toastify'
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -20,6 +21,7 @@ const Register = () => {
 
   useEffect(() => {
     if (userInfo) {
+      toast.success(`Welcome ${userInfo.name}! Account created successfully.`)
       dispatch(loadUserCart())
       navigate('/')
     }
@@ -44,11 +46,13 @@ const Register = () => {
 
     if (formData.password !== formData.confirmPassword) {
       setValidationError('Passwords do not match')
+      toast.error('Passwords do not match')
       return
     }
 
     if (formData.password.length < 6) {
       setValidationError('Password must be at least 6 characters')
+      toast.error('Password must be at least 6 characters')
       return
     }
 
@@ -58,6 +62,12 @@ const Register = () => {
       password: formData.password,
     }))
   }
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error)
+    }
+  }, [error])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

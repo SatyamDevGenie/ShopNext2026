@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchProductById, updateProduct } from '../redux/slices/productSlice'
 import Loader from '../components/Loader'
+import { toast } from 'react-toastify'
 
 const EditProduct = () => {
   const { id } = useParams()
@@ -66,9 +67,11 @@ const EditProduct = () => {
 
     try {
       await dispatch(updateProduct({ id, productData })).unwrap()
+      toast.success('Product updated successfully!')
       navigate('/admin/products')
     } catch (err) {
       console.error('Failed to update product:', err)
+      toast.error(err || 'Failed to update product')
     }
   }
 
