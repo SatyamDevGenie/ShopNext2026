@@ -70,7 +70,7 @@ const Checkout = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
-        name: 'ShopNest',
+        name: 'ShopNext2026',
         description: 'Order Payment',
         order_id: razorpayOrder.id,
         handler: async function (response) {
@@ -95,14 +95,18 @@ const Checkout = () => {
                 paymentId: response.razorpay_payment_id,
               }
 
-              await dispatch(createOrder(orderData)).unwrap()
+              console.log('Creating order with data:', orderData)
+              const result = await dispatch(createOrder(orderData)).unwrap()
+              console.log('Order created successfully:', result)
               dispatch(clearCart())
               navigate('/ordersuccess')
             } else {
               setError('Payment verification failed. Please contact support.')
+              console.error('Payment verification failed:', verifyData)
             }
           } catch (err) {
-            setError('Failed to create order. Please contact support.')
+            console.error('Order creation error:', err)
+            setError(err.message || 'Failed to create order. Please contact support.')
           } finally {
             setLoading(false)
           }
